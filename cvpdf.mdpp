@@ -1,0 +1,54 @@
+% Jared L. Eberle
+% Vita
+% Spring 2021
+
+!INCLUDE "pdf/header.mdpp"
+
+## Academic Employment
+
+!INCLUDE "both/work.mdpp"
+
+
+## Education
+
+!INCLUDE "both/education.mdpp"
+
+
+## Publications
+
+!INCLUDE "pdf/publications.mdpp"
+
+
+## Conference Papers
+
+!INCLUDE "pdf/conferences.mdpp"
+
+
+## Media Appearances
+
+!INCLUDE "both/media.mdpp"
+
+
+## Courses Taught
+
+!INCLUDE "both/teaching.mdpp"
+
+
+## Awards
+
+!INCLUDE "both/awards.mdpp"
+
+
+## Service
+
+!INCLUDE "both/service.mdpp"
+
+
+## Professional Organizations
+
+!INCLUDE "both/orgs.mdpp"
+
+
+## References
+
+- Available upon request

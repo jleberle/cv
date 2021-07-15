@@ -1,0 +1,48 @@
+!INCLUDE "html/header.mdpp"
+
+## Academic Employment
+
+!INCLUDE "both/work.mdpp"
+
+
+## Education
+
+!INCLUDE "both/education.mdpp"
+
+
+## Publications
+
+!INCLUDE "html/publications.mdpp"
+
+
+## Conference Papers
+
+!INCLUDE "html/conferences.mdpp"
+
+## Media
+
+!INCLUDE "both/media.mdpp"
+
+## Teaching
+
+!INCLUDE "both/teaching.mdpp"
+
+
+## Awards
+
+!INCLUDE "both/awards.mdpp"
+
+
+## Service Activities
+
+!INCLUDE "both/service.mdpp"
+
+
+## Professional Organizations
+
+!INCLUDE "both/orgs.mdpp"
+
+
+## References
+
+- Available upon request
