@@ -1,9 +1,5 @@
-require 'rake/clean'
-
-CLEAN.include("*.md","*.html")
-
 desc "Build html and pdf"
-task :default => [:makepdf, :makehtml, :clean, :push] 
+task :default => [:makepdf, :makehtml, :push] 
 
 desc "Build PDF version only"
 task :makepdf do
