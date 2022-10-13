@@ -9,7 +9,12 @@ Stillwater, OK 74078   				                  https://jaredeberle.org
 
 ## Academic Employment
 
-August 2018 - Present
+August 2022 - Present
+: 	**Oklahoma State University**
+
+- Lecturer
+
+August 2018 - August 2022
 : 	**Oklahoma State University**
 
 - Adjunct Instructor
