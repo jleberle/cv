@@ -1,52 +1,52 @@
 % Jared L. Eberle
 % Vita
-% Spring 2021
+% Spring 2022
 
-!INCLUDE "pdf/header.mdpp"
+!INCLUDE "header.mdpp"
 
 ## Academic Employment
 
-!INCLUDE "both/work.mdpp"
+!INCLUDE "work.mdpp"
 
 
 ## Education
 
-!INCLUDE "both/education.mdpp"
+!INCLUDE "education.mdpp"
 
 
 ## Publications
 
-!INCLUDE "pdf/publications.mdpp"
+!INCLUDE "publications.mdpp"
 
 
 ## Conference Papers
 
-!INCLUDE "pdf/conferences.mdpp"
+!INCLUDE "conferences.mdpp"
 
 
 ## Media Appearances
 
-!INCLUDE "both/media.mdpp"
+!INCLUDE "media.mdpp"
 
 
 ## Courses Taught
 
-!INCLUDE "both/teaching.mdpp"
+!INCLUDE "teaching.mdpp"
 
 
 ## Awards
 
-!INCLUDE "both/awards.mdpp"
+!INCLUDE "awards.mdpp"
 
 
 ## Service
 
-!INCLUDE "both/service.mdpp"
+!INCLUDE "service.mdpp"
 
 
 ## Professional Organizations
 
-!INCLUDE "both/orgs.mdpp"
+!INCLUDE "orgs.mdpp"
 
 
 ## References
