@@ -1,6 +1,6 @@
 % Jared L. Eberle
 % Vita
-% Spring 2022
+% Spring 2026
 
 -------------------                                   ----------------------------
 154 Social Sciences and Humanities Building           jared.eberle@okstate.edu
