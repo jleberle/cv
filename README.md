@@ -18,7 +18,7 @@ as a Hugo [page bundle](https://gohugo.io/content-management/page-bundles/) at
 | [pandoc](https://pandoc.org/) (with a LaTeX engine, e.g. TeX Live / MacTeX) | Markdown → PDF and Markdown → GitHub-flavored Markdown |
 | [Ghostscript](https://www.ghostscript.com/) (`gs`) | Subset fonts + compress the PDF |
 | [qpdf](https://qpdf.sourceforge.io/) | Linearize the PDF (Fast Web View) |
-| `rake` | Task runner |
+| `make` (GNU Make) | Task runner |
 
 On macOS: `brew install pandoc ghostscript qpdf` (plus a LaTeX distribution).
 
@@ -41,13 +41,13 @@ On macOS: `brew install pandoc ghostscript qpdf` (plus a LaTeX distribution).
 11-references.md    ## References
 meta.yaml           PDF title/author/date metadata
 webheader.md        Hugo front matter + "Download the PDF" link (prepended to the web page)
-Rakefile            Build + publish tasks
+Makefile            Build + publish targets
 ```
 
-**Section order is determined by the numeric filename prefix.** The Rakefile
-builds from `Dir.glob("[0-9][0-9]-*.md").sort`, so the filenames are the single
-source of truth for ordering — there is no separate manifest to keep in sync.
-Each numbered partial (except the header) opens with its own `##` heading.
+**Section order is determined by the numeric filename prefix.** The Makefile
+builds from `$(sort $(wildcard [0-9][0-9]-*.md))`, so the filenames are the
+single source of truth for ordering — there is no separate manifest to keep in
+sync. Each numbered partial (except the header) opens with its own `##` heading.
 
 `meta.yaml` and `webheader.md` have no numeric prefix, so they are deliberately
 excluded from the section glob.
@@ -55,21 +55,26 @@ excluded from the section glob.
 ## Building
 
 ```sh
-rake build    # build both the PDF and the web page (no commit/push)
-rake pdf      # build only the PDF
-rake web      # build only the web page
-rake          # build, then commit & push BOTH repos (default task)
+make          # build both the PDF and the web page (default; no commit/push)
+make pdf      # build only the PDF
+make web      # build only the web page
+make publish  # build, then commit & push BOTH repos
 ```
+
+`make` tracks file modification times, so it only rebuilds an output when one of
+its sources changes (run again with nothing changed → "Nothing to be done").
+Force a full rebuild with `make -B`.
 
 ### How the build works
 
-- **PDF (`rake pdf`)**
+- **PDF (`make pdf`)**
   1. `pandoc --metadata-file=meta.yaml <sections> -o cv-raw.pdf` (via LaTeX).
   2. `gs -dPDFSETTINGS=/ebook …` subsets fonts and compresses streams (~75% smaller).
   3. `qpdf --linearize …` reorganizes for Fast Web View → `content/cv/cv.pdf`.
-  - Intermediate files are removed even if a step fails.
+  - The `cv-raw.pdf`/`cv-opt.pdf` intermediates are auto-deleted; `.DELETE_ON_ERROR`
+    removes a partial output if any step fails.
 
-- **Web page (`rake web`)**
+- **Web page (`make web`)**
   1. `pandoc <sections> -t gfm` renders the body as GitHub-flavored Markdown.
   2. `webheader.md` (front matter + PDF link) is prepended → `content/cv/index.md`.
 
@@ -77,14 +82,14 @@ rake          # build, then commit & push BOTH repos (default task)
 
 1. Create a `NN-name.md` file with a `## Heading`, numbered for its position.
 2. Renumber neighbors if needed (any gap/order is fine — the glob sorts them).
-3. `rake build` and review the outputs.
+3. `make` and review the outputs.
 
 ## Publishing
 
-- `rake push` commits and pushes this source repo (`master`).
-- `rake pushweb` commits the generated `content/cv/` outputs in the website repo
+- `make push` commits and pushes this source repo (`master`).
+- `make pushweb` commits the generated `content/cv/` outputs in the website repo
   and pushes (`main`), which triggers the website's CI to rebuild and deploy.
-- `rake` (default) does build + both pushes in one step.
+- `make publish` does build + both pushes in one step.
 
 ## Notes
 
@@ -92,6 +97,6 @@ rake          # build, then commit & push BOTH repos (default task)
   the PDF. On the web that raw LaTeX is dropped; instead those sections are
   wrapped in a `::: {.hang}` div and styled by `assets/css/extended/cv.css` in
   the website repo (which is why the site enables `markup.goldmark.renderer.unsafe`).
-- **Reproducibility:** LaTeX embeds a build timestamp, so each `rake build`
-  produces a byte-different `cv.pdf` even with no content change. `rake pushweb`
-  handles this fine (it commits whatever changed).
+- **Reproducibility:** LaTeX embeds a build timestamp, so a forced rebuild
+  (`make -B`) produces a byte-different `cv.pdf` even with no content change.
+  `make pushweb` handles this fine (it commits whatever changed).
