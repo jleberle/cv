@@ -1,3 +1,5 @@
+## Professional Organizations
+
 - Society for the Study of Ethnohistory
 - Native American and Indigenous Studies Association
 - Western History Association

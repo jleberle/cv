@@ -1,3 +1,7 @@
+## Conference Papers
+
+::: {.hang}
+
 \hangindent=0.5in "'[Dis]-uniting the Red People of the Western Hemisphere:' The National Indian Youth Council in Latin America." Accepted paper for the D'Arcy McNickle American Indian Seminar Series. Newberry Library, Chicago, IL, April 2019.
 
 \hangindent=0.5in "The Peoples Temple and San Francisco’s Native American Community," Western History Association, San Antonio, Texas, October 2018. 
@@ -14,3 +18,5 @@ Winnipeg, Canada, October 2017.
 \hangindent=0.5in “Red Power in a Global Context: AIM and the Vietnam War.” Native American and Indigenous Studies Association, Washington DC, June 2015.
  
 \hangindent=0.5in “Vietnam In South Dakota: The Media's Depiction of the Wounded Knee Occupation.” Southwest PCA/ACA, Albuquerque, New Mexico, February 2015.
+
+:::

@@ -1,3 +1,5 @@
+## Education
+
 August 2012 — July 2018
  :	**Ph.D, History**;  Oklahoma State University
 

@@ -1,3 +1,5 @@
+## Service
+
 - Phi Alpha Theta, Nu Chapter President (2014-2016)
 - Phi Alpha Theta, Nu Chapter Treasurer (2018)
 - History Department Graduate Student Faculty Representative (Spring 2014, 2017-2018)

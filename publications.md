@@ -1,3 +1,7 @@
+## Publications
+
+::: {.hang}
+
 \hangindent=0.5in Review, Clyde Bellecourt with Jon Lurie, *The Thunder Before The Storm: The Autobiography of 
 Clyde Bellecourt*. *Native American and Indigenous Studies* 5.1 (Spring 2018), 211-212.
 
@@ -19,3 +23,5 @@ United States History without American Indians*. *Chronicles of Oklahoma* 93
 Autobiography of a Yavapai Indian*, edited by Gregory McNamee. *Chronicles of 
 Oklahoma* 92 (Fall 2014), 369-370. 
 -->
+
+:::

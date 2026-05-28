@@ -1,3 +1,5 @@
+## Awards
+
 - Western History Graduate Student Prize (Fall 2017)
 - Phi Alpha Theta National Honor Society Doctoral Scholarship, Fall 2017 ($1,000)
 - Robberson Summer Dissertation Fellowship, Oklahoma State University Graduate College, Summer 2016 ($6,000)

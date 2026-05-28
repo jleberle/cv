@@ -1,3 +1,5 @@
+## Courses Taught
+
 - History 1103: Survey of American History
 - History 1493: United States History Since 1865
 - History 2023: History of the Present
