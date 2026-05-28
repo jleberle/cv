@@ -127,7 +127,6 @@ C-SPAN, "[Native American Activism in the 1970s](https://www.c-span.org/video/?4
 - Phi Alpha Theta
 - Phi Kappa Phi Inductee
 
-
 ## References
 
 - Available upon request
