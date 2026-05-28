@@ -4,20 +4,10 @@
 #
 # Requires: pandoc (with a LaTeX engine for PDF). markdown-pp is no longer used.
 
-# Ordered list of section partials. This replaces the old cvpdf.mdpp master.
-SECTIONS = %w[
-  header.md
-  work.md
-  education.md
-  publications.md
-  conferences.md
-  media.md
-  teaching.md
-  awards.md
-  service.md
-  orgs.md
-  references.md
-].join(" ")
+# Section partials are numbered (NN-name.md) in output order; the prefix is the
+# single source of truth for ordering. This replaces the old cvpdf.mdpp master.
+# To reorder or add a section, just rename/create a numbered file.
+SECTIONS = Dir.glob("[0-9][0-9]-*.md").sort.join(" ")
 
 WEBSITE = File.expand_path("~/git/website")
 BUNDLE  = File.join(WEBSITE, "content", "cv")   # Hugo page bundle for the CV
