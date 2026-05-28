@@ -28,10 +28,23 @@ task :default => [:build, :push, :pushweb]
 desc "Build both the PDF and the Hugo page"
 task :build => [:pdf, :web]
 
-desc "Build the PDF into the Hugo page bundle"
+desc "Build the web-optimized PDF into the Hugo page bundle"
 task :pdf do
   mkdir_p BUNDLE
-  sh "pandoc --metadata-file=meta.yaml #{SECTIONS} -o #{BUNDLE}/cv.pdf"
+  raw = "cv-raw.pdf"
+  opt = "cv-opt.pdf"
+  begin
+    sh "pandoc --metadata-file=meta.yaml #{SECTIONS} -o #{raw}"
+    # Optimize for the web in two passes:
+    #   1. Ghostscript subsets fonts + compresses streams (~75% smaller here).
+    #   2. qpdf linearizes for Fast Web View (progressive load over HTTP).
+    sh "gs -q -sDEVICE=pdfwrite -dCompatibilityLevel=1.5 -dPDFSETTINGS=/ebook " \
+       "-dNOPAUSE -dBATCH -sOutputFile=#{opt} #{raw}"
+    sh "qpdf --linearize #{opt} #{BUNDLE}/cv.pdf"
+  ensure
+    rm_f raw
+    rm_f opt
+  end
 end
 
 desc "Build the Hugo CV page (markdown) with a link to the PDF"
