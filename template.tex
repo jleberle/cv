@@ -1,0 +1,98 @@
+% Academic CV template for pandoc
+% Fonts: TeX Gyre Pagella (Palatino-like), widely available in TeX Live
+\documentclass[11pt, letterpaper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{tgpagella}          % Palatino-style body text
+\usepackage{microtype}          % Microtypographic refinements
+\usepackage[
+  top=0.85in, bottom=1in,
+  left=1.1in, right=1.1in
+]{geometry}
+
+% Paragraph spacing — no indent, small skip between paragraphs
+\usepackage{parskip}
+\setlength{\parskip}{4pt}
+
+% Section styling: bold, slightly larger, with a full-width rule below
+\usepackage{titlesec}
+\titleformat{\section}
+  {\large\bfseries\scshape}    % format
+  {}                           % label
+  {0em}                        % sep
+  {}                           % before-code
+  [\vspace{2pt}\titlerule]     % after-code
+\titlespacing*{\section}{0pt}{3.5ex plus 0.5ex}{1.5ex}
+
+% Subsection: same treatment as section (pandoc maps ## to \subsection
+% when there is no H1 above it, which is the case for this CV)
+\titleformat{\subsection}
+  {\large\bfseries\scshape}
+  {}
+  {0em}
+  {}
+  [\vspace{2pt}\titlerule]
+\titlespacing*{\subsection}{0pt}{3.5ex plus 0.5ex}{1.5ex}
+
+% Lists
+\usepackage{enumitem}
+\setlist[itemize]{
+  leftmargin=1.5em,
+  itemsep=1pt,
+  parsep=0pt,
+  topsep=3pt
+}
+
+% Definition lists (pandoc uses these for date:entry pairs)
+% Left column = date label (1.35in wide), right column = entry text
+\setlist[description]{
+  style=sameline,
+  font=\normalfont\itshape,
+  labelwidth=1.3in,
+  leftmargin=1.45in,
+  labelsep=0.15in,
+  itemsep=4pt,
+  parsep=0pt,
+  topsep=3pt
+}
+
+% No-op wrapper for .hang fenced divs; each para uses \hangindent directly
+\newenvironment{hang}{}{}
+
+% Pandoc emits \tightlist inside list environments
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% Tables (used in the address header block)
+\usepackage{longtable, booktabs, array}
+\setlength{\tabcolsep}{4pt}
+% Pandoc wraps headerless tables with \def\LTcaptype{none}; longtable then
+% tries \stepcounter{none} which fails unless we define that counter.
+\newcounter{none}
+
+% URLs
+\usepackage[
+  hidelinks,
+  pdftitle={$title$},
+  pdfauthor={$author$}
+]{hyperref}
+\urlstyle{same}
+
+% No page numbers on a CV
+\pagestyle{empty}
+
+% ---- Document ---------------------------------------------------------------
+\begin{document}
+
+% Name as a large centered heading
+{\centering
+  \LARGE\bfseries\scshape $title$ \par
+  \vspace{4pt}
+  \normalsize\itshape $author$ \enspace·\enspace $date$ \par
+}
+\vspace{8pt}
+\noindent\rule{\textwidth}{0.8pt}
+\vspace{4pt}
+
+$body$
+
+\end{document}

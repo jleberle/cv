@@ -29,8 +29,8 @@ cv-opt.pdf: cv-raw.pdf
 	gs -q -sDEVICE=pdfwrite -dCompatibilityLevel=1.5 -dPDFSETTINGS=/ebook \
 	   -dNOPAUSE -dBATCH -sOutputFile=$@ $<
 
-cv-raw.pdf: $(SECTIONS) meta.yaml
-	pandoc --metadata-file=meta.yaml $(SECTIONS) -o $@
+cv-raw.pdf: $(SECTIONS) meta.yaml template.tex
+	pandoc --metadata-file=meta.yaml --template=template.tex $(SECTIONS) -o $@
 
 # Auto-deleted once the PDF is built.
 .INTERMEDIATE: cv-raw.pdf cv-opt.pdf
