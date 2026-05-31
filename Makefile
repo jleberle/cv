@@ -12,9 +12,15 @@ BUNDLE  := $(WEBSITE)/content/cv
 # manifest. To reorder or add a section, just rename/create a numbered file.
 SECTIONS := $(sort $(wildcard [0-9][0-9]-*.md))
 
+# Source files committed by `make push` (explicit list avoids picking up scratch files).
+SOURCES := $(SECTIONS) meta.yaml template.tex webheader.md Makefile README.md
+
+# Commit message for `make push`; override with: make push MSG="your message"
+MSG ?= Updated CV
+
 # Remove a target if its recipe fails, so partial output never looks current.
 .DELETE_ON_ERROR:
-.PHONY: build pdf web publish push pushweb
+.PHONY: build pdf web publish push pushweb clean update-date
 
 # Default: build both outputs (no commit/push). Use `make publish` to ship.
 build: pdf web
@@ -37,20 +43,23 @@ cv-raw.pdf: $(SECTIONS) meta.yaml template.tex
 
 # --- Web page: pandoc gfm body with the front matter / PDF link prepended ---
 $(BUNDLE)/index.md: $(SECTIONS) webheader.md | $(BUNDLE)
-	pandoc $(SECTIONS) -t gfm -o cvbody.md
-	cat webheader.md cvbody.md > $@
-	rm -f cvbody.md
+	{ cat webheader.md; pandoc $(SECTIONS) -t gfm; } > $@
 
 $(BUNDLE):
 	mkdir -p $@
 
-# --- Publish ---
-publish: build push pushweb
+# --- Stamp today's date into meta.yaml and webheader.md ---
+update-date:
+	sed -i '' 's/^date: .*/date: "$(shell date +"%B %Y")"/' meta.yaml
+	sed -i '' 's/^date: .*/date: $(shell date +"%Y-%m-%d")/' webheader.md
+
+# --- Publish: website first so the source push is the last thing that lands ---
+publish: build pushweb push
 
 # Commit and push this source repo.
 push:
-	git add .
-	git commit -S -m 'Updated CV'
+	git add $(SOURCES)
+	git commit -S -m '$(MSG)'
 	git push origin master
 
 # Commit the generated outputs in the website repo (no-op if unchanged) and push.
@@ -58,3 +67,7 @@ pushweb:
 	cd $(WEBSITE) && git add content/cv && \
 	  { git diff --cached --quiet || git commit -S -m 'Update CV'; } && \
 	  git push origin main
+
+# Remove intermediates and any leftover temp files from the working directory.
+clean:
+	rm -f cv-raw.pdf cv-opt.pdf cvbody.md
