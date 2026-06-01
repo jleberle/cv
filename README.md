@@ -22,6 +22,8 @@ as a Hugo [page bundle](https://gohugo.io/content-management/page-bundles/) at
 
 On macOS: `brew install pandoc ghostscript qpdf` (plus a LaTeX distribution).
 
+`make push` and `make pushweb` sign commits with GPG (`git commit -S`). A configured, available GPG key is required; without one those targets will fail.
+
 > **Note:** this replaces the previous `markdown-pp` + `pandoc` pipeline.
 > `markdown-pp` is no longer used — pandoc concatenates the section files directly.
 
@@ -55,6 +57,7 @@ excluded from the section glob.
 ## Building
 
 ```sh
+make check    # verify all dependencies are installed before building
 make          # build both the PDF and the web page (default; no commit/push)
 make pdf      # build only the PDF
 make web      # build only the web page

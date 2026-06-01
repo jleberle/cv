@@ -20,7 +20,16 @@ MSG ?= Updated CV
 
 # Remove a target if its recipe fails, so partial output never looks current.
 .DELETE_ON_ERROR:
-.PHONY: build pdf web publish push pushweb clean update-date
+.PHONY: build pdf web publish push pushweb clean update-date check
+
+# --- Preflight: verify required tools are installed ---
+check:
+	@command -v pandoc  >/dev/null 2>&1 || { echo "ERROR: pandoc not found"; exit 1; }
+	@command -v gs      >/dev/null 2>&1 || { echo "ERROR: ghostscript (gs) not found"; exit 1; }
+	@command -v qpdf    >/dev/null 2>&1 || { echo "ERROR: qpdf not found"; exit 1; }
+	@command -v git     >/dev/null 2>&1 || { echo "ERROR: git not found"; exit 1; }
+	@kpsewhich tgpagella.sty >/dev/null 2>&1 || { echo "ERROR: LaTeX package tgpagella not found (install TeX Live / MacTeX)"; exit 1; }
+	@echo "All dependencies found."
 
 # Default: build both outputs (no commit/push). Use `make publish` to ship.
 build: pdf web
