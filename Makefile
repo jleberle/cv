@@ -52,7 +52,7 @@ cv-raw.pdf: $(SECTIONS) meta.yaml template.tex
 
 # --- Web page: pandoc gfm body with the front matter / PDF link prepended ---
 $(BUNDLE)/index.md: $(SECTIONS) webheader.md | $(BUNDLE)
-	{ cat webheader.md; pandoc $(SECTIONS) -t gfm; } > $@
+	{ cat webheader.md; pandoc $(SECTIONS) -t gfm | sed '/^<div class="hang">$$/d; /^<\/div>$$/d'; } > $@
 
 $(BUNDLE):
 	mkdir -p $@
