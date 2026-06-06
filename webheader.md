@@ -1,6 +1,6 @@
 ---
 title: "Jared L. Eberle — Curriculum Vitae"
-date: 2026-05-28
+date: 2026-06-06
 hideMeta: true
 ---
 

@@ -61,8 +61,13 @@ make check    # verify all dependencies are installed before building
 make          # build both the PDF and the web page (default; no commit/push)
 make pdf      # build only the PDF
 make web      # build only the web page
-make publish  # build, then commit & push BOTH repos
+make preview  # build both into ./preview instead of the website repo
+make publish  # stamp the date, build, then commit & push BOTH repos
 ```
+
+> A plain `make` writes its outputs straight into the website repo's
+> `content/cv/` (uncommitted). Use `make preview` to build into a throwaway
+> `./preview/` directory when you just want to inspect the result.
 
 `make` tracks file modification times, so it only rebuilds an output when one of
 its sources changes (run again with nothing changed → "Nothing to be done").
@@ -89,17 +94,18 @@ Force a full rebuild with `make -B`.
 
 ## Publishing
 
-- `make push` commits and pushes this source repo (`master`).
+- `make push` commits and pushes this source repo (`master`). It skips the
+  commit if nothing changed, so it won't abort on an empty commit.
 - `make pushweb` commits the generated `content/cv/` outputs in the website repo
   and pushes (`main`), which triggers the website's CI to rebuild and deploy.
-- `make publish` does build + both pushes in one step.
+- `make publish` runs `update-date`, builds, and does both pushes in one step.
 
 ## Notes
 
 - **Hanging indents:** publication and conference entries use `\hangindent` for
-  the PDF. On the web that raw LaTeX is dropped; instead those sections are
-  wrapped in a `::: {.hang}` div and styled by `assets/css/extended/cv.css` in
-  the website repo (which is why the site enables `markup.goldmark.renderer.unsafe`).
+  the PDF. On the web both the raw LaTeX and the surrounding `::: {.hang}`
+  wrapper are dropped (the web recipe strips the `<div class="hang">` … `</div>`
+  lines), so those entries render as plain paragraphs with no hanging indent.
 - **Reproducibility:** LaTeX embeds a build timestamp, so a forced rebuild
   (`make -B`) produces a byte-different `cv.pdf` even with no content change.
   `make pushweb` handles this fine (it commits whatever changed).
