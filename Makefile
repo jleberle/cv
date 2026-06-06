@@ -52,18 +52,19 @@ cv-opt.pdf: cv-raw.pdf
 	   -dNOPAUSE -dBATCH -sOutputFile=$@ $<
 
 cv-raw.pdf: $(SECTIONS) meta.yaml template.tex Makefile
-	pandoc --metadata-file=meta.yaml --template=template.tex $(SECTIONS) -o $@
+	pandoc --strip-comments --metadata-file=meta.yaml --template=template.tex $(SECTIONS) -o $@
 
 # Auto-deleted once the PDF is built.
 .INTERMEDIATE: cv-raw.pdf cv-opt.pdf
 
 # --- Web page: pandoc gfm body with the front matter / PDF link prepended ---
+# --strip-comments keeps parked <!-- --> entries out of the generated index.md.
 # The awk drops only the .hang wrapper divs (opening line + its matching close),
 # so a stray </div> from any future content is left intact. cat -s then collapses
 # the blank lines left where the wrappers were.
 $(BUNDLE)/index.md: $(SECTIONS) webheader.md Makefile | $(BUNDLE)
 	{ cat webheader.md; \
-	  pandoc $(SECTIONS) -t gfm \
+	  pandoc --strip-comments $(SECTIONS) -t gfm \
 	    | awk '/^<div class="hang">$$/ {h=1; next} h && /^<\/div>$$/ {h=0; next} {print}'; \
 	} | cat -s > $@
 
