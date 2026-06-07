@@ -18,6 +18,9 @@ SOURCES := $(SECTIONS) meta.yaml template.tex webheader.md Makefile README.md LI
 # Commit message for `make push`; override with: make push MSG="your message"
 MSG ?= Updated CV
 
+# Current season (Northern Hemisphere) from the month, for the web description.
+SEASON := $(shell case $$(date +%m) in (12|01|02) echo Winter;; (03|04|05) echo Spring;; (06|07|08) echo Summer;; (09|10|11) echo Fall;; esac)
+
 # Remove a target if its recipe fails, so partial output never looks current.
 .DELETE_ON_ERROR:
 # `publish` relies on prerequisite order (update-date -> build -> website -> source),
@@ -76,6 +79,7 @@ $(BUNDLE):
 update-date:
 	sed -i '' 's/^date: .*/date: "$(shell date +"%B %Y")"/' meta.yaml
 	sed -i '' 's/^date: .*/date: $(shell date +"%Y-%m-%d")/' webheader.md
+	sed -i '' 's/^description: .*/description: "$(SEASON) $(shell date +"%Y")"/' webheader.md
 
 # --- Publish: stamp the date, rebuild, then push website before source so the
 # source commit is the last thing that lands. (.NOTPARALLEL keeps this ordered.) ---
