@@ -16,7 +16,15 @@ SECTIONS := $(sort $(wildcard [0-9][0-9]-*.md))
 SOURCES := $(SECTIONS) meta.yaml template.tex webheader.md Makefile README.md LICENSE .gitignore
 
 # Commit message for `make push`; override with: make push MSG="your message"
+# Exported so the recipe reads it from the environment ($$MSG), which keeps
+# quotes and apostrophes in the message intact.
 MSG ?= Updated CV
+export MSG
+
+# Reproducible PDFs: pdflatex stamps its timestamps from SOURCE_DATE_EPOCH
+# (pinned to the last commit), gs omits its CreationDate/ModDate, and qpdf
+# derives the /ID from content — so an unchanged rebuild is byte-identical.
+export SOURCE_DATE_EPOCH := $(shell git log -1 --format=%ct 2>/dev/null || date +%s)
 
 # Current season (Northern Hemisphere) from the month, for the web description.
 SEASON := $(shell case $$(date +%m) in (12|01|02) echo Winter;; (03|04|05) echo Spring;; (06|07|08) echo Summer;; (09|10|11) echo Fall;; esac)
@@ -30,10 +38,11 @@ SEASON := $(shell case $$(date +%m) in (12|01|02) echo Winter;; (03|04|05) echo 
 
 # --- Preflight: verify required tools are installed ---
 check:
-	@command -v pandoc  >/dev/null 2>&1 || { echo "ERROR: pandoc not found"; exit 1; }
-	@command -v gs      >/dev/null 2>&1 || { echo "ERROR: ghostscript (gs) not found"; exit 1; }
-	@command -v qpdf    >/dev/null 2>&1 || { echo "ERROR: qpdf not found"; exit 1; }
-	@command -v git     >/dev/null 2>&1 || { echo "ERROR: git not found"; exit 1; }
+	@command -v pandoc   >/dev/null 2>&1 || { echo "ERROR: pandoc not found"; exit 1; }
+	@command -v gs       >/dev/null 2>&1 || { echo "ERROR: ghostscript (gs) not found"; exit 1; }
+	@command -v qpdf     >/dev/null 2>&1 || { echo "ERROR: qpdf not found"; exit 1; }
+	@command -v git      >/dev/null 2>&1 || { echo "ERROR: git not found"; exit 1; }
+	@command -v pdflatex >/dev/null 2>&1 || { echo "ERROR: pdflatex not found (install TeX Live / MacTeX)"; exit 1; }
 	@kpsewhich tgpagella.sty >/dev/null 2>&1 || { echo "ERROR: LaTeX package tgpagella not found (install TeX Live / MacTeX)"; exit 1; }
 	@echo "All dependencies found."
 
@@ -48,10 +57,11 @@ preview:
 
 # --- PDF: pandoc (LaTeX) -> ghostscript (subset + compress) -> qpdf (linearize) ---
 $(BUNDLE)/cv.pdf: cv-opt.pdf | $(BUNDLE)
-	qpdf --linearize $< $@
+	qpdf --linearize --deterministic-id $< $@
 
 cv-opt.pdf: cv-raw.pdf
 	gs -q -sDEVICE=pdfwrite -dCompatibilityLevel=1.5 -dPDFSETTINGS=/ebook \
+	   -dOmitInfoDate=true -dOmitXMP=true -dOmitID=true \
 	   -dNOPAUSE -dBATCH -sOutputFile=$@ $<
 
 cv-raw.pdf: $(SECTIONS) meta.yaml template.tex Makefile
@@ -65,7 +75,12 @@ cv-raw.pdf: $(SECTIONS) meta.yaml template.tex Makefile
 # The awk drops only the .hang wrapper divs (opening line + its matching close),
 # so a stray </div> from any future content is left intact. cat -s then collapses
 # the blank lines left where the wrappers were.
+# set -o pipefail: a pandoc failure mid-pipe must fail the recipe (so
+# .DELETE_ON_ERROR removes the truncated index.md) instead of being masked
+# by the exit status of `cat -s`. Inline because Apple's make 3.81 ignores
+# .SHELLFLAGS, the usual way to set this.
 $(BUNDLE)/index.md: $(SECTIONS) webheader.md Makefile | $(BUNDLE)
+	set -o pipefail; \
 	{ cat webheader.md; \
 	  pandoc --strip-comments $(SECTIONS) -t gfm \
 	    | awk '/^<div class="hang">$$/ {h=1; next} h && /^<\/div>$$/ {h=0; next} {print}'; \
@@ -75,11 +90,15 @@ $(BUNDLE):
 	mkdir -p $@
 
 # --- Stamp today's date into meta.yaml and webheader.md ---
-# Uses BSD sed/date (macOS). On GNU/Linux drop the '' after -i and use GNU date.
+# Idempotent: each file is replaced only if the stamp actually changed, so a
+# same-month publish doesn't touch mtimes (and thus doesn't force a rebuild).
 update-date:
-	sed -i '' 's/^date: .*/date: "$(shell date +"%B %Y")"/' meta.yaml
-	sed -i '' 's/^date: .*/date: $(shell date +"%Y-%m-%d")/' webheader.md
-	sed -i '' 's/^description: .*/description: "$(SEASON) $(shell date +"%Y")"/' webheader.md
+	sed 's/^date: .*/date: "$(shell date +"%B %Y")"/' meta.yaml > meta.yaml.tmp
+	cmp -s meta.yaml.tmp meta.yaml && rm meta.yaml.tmp || mv meta.yaml.tmp meta.yaml
+	sed -e 's/^date: .*/date: $(shell date +"%Y-%m-%d")/' \
+	    -e 's/^description: .*/description: "$(SEASON) $(shell date +"%Y")"/' \
+	    webheader.md > webheader.md.tmp
+	cmp -s webheader.md.tmp webheader.md && rm webheader.md.tmp || mv webheader.md.tmp webheader.md
 
 # --- Publish: stamp the date, rebuild, then push website before source so the
 # source commit is the last thing that lands. (.NOTPARALLEL keeps this ordered.) ---
@@ -89,7 +108,7 @@ publish: update-date build pushweb push
 # (matches pushweb) so a no-op publish doesn't abort on an empty commit.
 push:
 	git add $(SOURCES)
-	git diff --cached --quiet || git commit -S -m '$(MSG)'
+	git diff --cached --quiet || git commit -S -m "$$MSG"
 	git push origin master
 
 # Commit the generated outputs in the website repo (no-op if unchanged) and push.
@@ -100,5 +119,5 @@ pushweb:
 
 # Remove intermediates and any leftover temp files from the working directory.
 clean:
-	rm -f cv-raw.pdf cv-opt.pdf
+	rm -f cv-raw.pdf cv-opt.pdf meta.yaml.tmp webheader.md.tmp
 	rm -rf preview

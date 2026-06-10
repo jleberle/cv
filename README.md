@@ -41,7 +41,7 @@ On macOS: `brew install pandoc ghostscript qpdf` (plus a LaTeX distribution).
 09-service.md       ## Service
 10-orgs.md          ## Professional Organizations
 11-references.md    ## References
-meta.yaml           PDF title/author/date metadata
+meta.yaml           PDF title/subtitle/author/date metadata
 webheader.md        Hugo front matter + "Download the PDF" link (prepended to the web page)
 Makefile            Build + publish targets
 ```
@@ -106,6 +106,8 @@ Force a full rebuild with `make -B`.
   the PDF. On the web both the raw LaTeX and the surrounding `::: {.hang}`
   wrapper are dropped (the web recipe strips the `<div class="hang">` … `</div>`
   lines), so those entries render as plain paragraphs with no hanging indent.
-- **Reproducibility:** LaTeX embeds a build timestamp, so a forced rebuild
-  (`make -B`) produces a byte-different `cv.pdf` even with no content change.
-  `make pushweb` handles this fine (it commits whatever changed).
+- **Reproducibility:** builds are byte-stable. `SOURCE_DATE_EPOCH` (pinned to
+  the last source commit) fixes the LaTeX timestamps, Ghostscript omits its
+  info dates, and qpdf writes a content-derived `/ID` — so rebuilding without
+  content changes (even `make -B`) reproduces `cv.pdf` exactly, and a no-op
+  `make publish` creates no website commit.
