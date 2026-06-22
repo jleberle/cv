@@ -2,7 +2,7 @@
 #   * PDF  -> $(BUNDLE)/cv.pdf    web-optimized: font-subset, compressed, linearized
 #   * Page -> $(BUNDLE)/index.md  full CV as a Hugo page, with a link to the PDF
 #
-# Requires: pandoc (+ a LaTeX engine), ghostscript (gs), qpdf, git.
+# Requires: pandoc, tectonic (LaTeX engine), ghostscript (gs), qpdf, git.
 # (Replaces the previous markdown-pp pipeline; pandoc concatenates the files.)
 
 WEBSITE := $(HOME)/git/website
@@ -21,7 +21,7 @@ SOURCES := $(SECTIONS) meta.yaml template.tex webheader.md Makefile README.md LI
 MSG ?= Updated CV
 export MSG
 
-# Reproducible PDFs: pdflatex stamps its timestamps from SOURCE_DATE_EPOCH
+# Reproducible PDFs: tectonic stamps its timestamps from SOURCE_DATE_EPOCH
 # (pinned to the last commit), gs omits its CreationDate/ModDate, and qpdf
 # derives the /ID from content — so an unchanged rebuild is byte-identical.
 export SOURCE_DATE_EPOCH := $(shell git log -1 --format=%ct 2>/dev/null || date +%s)
@@ -42,8 +42,7 @@ check:
 	@command -v gs       >/dev/null 2>&1 || { echo "ERROR: ghostscript (gs) not found"; exit 1; }
 	@command -v qpdf     >/dev/null 2>&1 || { echo "ERROR: qpdf not found"; exit 1; }
 	@command -v git      >/dev/null 2>&1 || { echo "ERROR: git not found"; exit 1; }
-	@command -v pdflatex >/dev/null 2>&1 || { echo "ERROR: pdflatex not found (install TeX Live / MacTeX)"; exit 1; }
-	@kpsewhich tgpagella.sty >/dev/null 2>&1 || { echo "ERROR: LaTeX package tgpagella not found (install TeX Live / MacTeX)"; exit 1; }
+	@command -v tectonic >/dev/null 2>&1 || { echo "ERROR: tectonic not found (brew install tectonic)"; exit 1; }
 	@echo "All dependencies found."
 
 # Default: build both outputs (no commit/push). Use `make publish` to ship.
@@ -65,7 +64,7 @@ cv-opt.pdf: cv-raw.pdf
 	   -dNOPAUSE -dBATCH -sOutputFile=$@ $<
 
 cv-raw.pdf: $(SECTIONS) meta.yaml template.tex Makefile
-	pandoc --strip-comments --metadata-file=meta.yaml --template=template.tex $(SECTIONS) -o $@
+	pandoc --strip-comments --metadata-file=meta.yaml --template=template.tex --pdf-engine=tectonic $(SECTIONS) -o $@
 
 # Auto-deleted once the PDF is built.
 .INTERMEDIATE: cv-raw.pdf cv-opt.pdf
@@ -109,7 +108,7 @@ publish: update-date build pushweb push
 push:
 	git add $(SOURCES)
 	git diff --cached --quiet || git commit -S -m "$$MSG"
-	git push origin master
+	git push origin main
 
 # Commit the generated outputs in the website repo (no-op if unchanged) and push.
 pushweb:

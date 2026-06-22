@@ -7,7 +7,7 @@ builds **two** outputs from a single source:
   Fast Web View).
 - **A Hugo page** — the full CV rendered as a web page, with a link to the PDF.
 
-Both outputs are written into the [website repo](https://codeberg.org/jleberle/website)
+Both outputs are written into the [website repo](https://codeberg.org/jle/website)
 as a Hugo [page bundle](https://gohugo.io/content-management/page-bundles/) at
 `content/cv/` (`index.md` + `cv.pdf`).
 
@@ -15,12 +15,14 @@ as a Hugo [page bundle](https://gohugo.io/content-management/page-bundles/) at
 
 | Tool | Role |
 |------|------|
-| [pandoc](https://pandoc.org/) (with a LaTeX engine, e.g. TeX Live / MacTeX) | Markdown → PDF and Markdown → GitHub-flavored Markdown |
+| [pandoc](https://pandoc.org/) | Markdown → PDF and Markdown → GitHub-flavored Markdown |
+| [Tectonic](https://tectonic-typesetting.github.io/) | LaTeX engine (fetches the needed TeX packages itself; no TeX Live install) |
 | [Ghostscript](https://www.ghostscript.com/) (`gs`) | Subset fonts + compress the PDF |
 | [qpdf](https://qpdf.sourceforge.io/) | Linearize the PDF (Fast Web View) |
 | `make` (GNU Make) | Task runner |
 
-On macOS: `brew install pandoc ghostscript qpdf` (plus a LaTeX distribution).
+On macOS: `brew install pandoc tectonic ghostscript qpdf`. The first PDF build
+needs network access (Tectonic downloads its TeX package bundle, then caches it).
 
 `make push` and `make pushweb` sign commits with GPG (`git commit -S`). A configured, available GPG key is required; without one those targets will fail.
 
@@ -76,7 +78,7 @@ Force a full rebuild with `make -B`.
 ### How the build works
 
 - **PDF (`make pdf`)**
-  1. `pandoc --metadata-file=meta.yaml <sections> -o cv-raw.pdf` (via LaTeX).
+  1. `pandoc --metadata-file=meta.yaml <sections> -o cv-raw.pdf` (via Tectonic).
   2. `gs -dPDFSETTINGS=/ebook …` subsets fonts and compresses streams (~75% smaller).
   3. `qpdf --linearize …` reorganizes for Fast Web View → `content/cv/cv.pdf`.
   - The `cv-raw.pdf`/`cv-opt.pdf` intermediates are auto-deleted; `.DELETE_ON_ERROR`
@@ -94,7 +96,7 @@ Force a full rebuild with `make -B`.
 
 ## Publishing
 
-- `make push` commits and pushes this source repo (`master`). It skips the
+- `make push` commits and pushes this source repo (`main`). It skips the
   commit if nothing changed, so it won't abort on an empty commit.
 - `make pushweb` commits the generated `content/cv/` outputs in the website repo
   and pushes (`main`), which triggers the website's CI to rebuild and deploy.

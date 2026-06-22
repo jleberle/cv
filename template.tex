@@ -1,9 +1,18 @@
 % Academic CV template for pandoc
-% Fonts: TeX Gyre Pagella (Palatino-like), widely available in TeX Live
+% Fonts: TeX Gyre Pagella (Palatino-like), fetched automatically by Tectonic
 \documentclass[11pt, letterpaper]{article}
 
-\usepackage[T1]{fontenc}
-\usepackage{tgpagella}          % Palatino-style body text
+% OpenType Pagella via fontspec (XeTeX-native). The legacy fontenc/tgpagella
+% route uses EC-encoded fonts that lack Unicode em-dashes and curly quotes
+% under XeTeX, which silently drops those characters from the PDF.
+\usepackage{fontspec}
+\setmainfont{texgyrepagella}[   % Palatino-style body text
+  Extension      = .otf,
+  UprightFont    = *-regular,
+  BoldFont       = *-bold,
+  ItalicFont     = *-italic,
+  BoldItalicFont = *-bolditalic
+]
 \usepackage{microtype}          % Microtypographic refinements
 \usepackage[
   top=0.85in, bottom=1in,
@@ -13,6 +22,10 @@
 % Paragraph spacing — no indent, small skip between paragraphs
 \usepackage{parskip}
 \setlength{\parskip}{4pt}
+
+% No heading numbers anywhere (pandoc ### headings otherwise render as
+% numbered \subsubsection, e.g. "0.6.1 In-Person")
+\setcounter{secnumdepth}{0}
 
 % Section styling: bold, slightly larger, with a full-width rule below
 \usepackage{titlesec}
