@@ -11,9 +11,10 @@ BUNDLE  := $(WEBSITE)/content/cv
 # Section order is the numeric filename prefix; the sorted glob is the only
 # manifest. To reorder or add a section, just rename/create a numbered file.
 SECTIONS := $(sort $(wildcard [0-9][0-9]-*.md))
+WEB_SECTIONS := $(filter-out 01-header.md,$(SECTIONS))
 
 # Source files committed by `make push` (explicit list avoids picking up scratch files).
-SOURCES := $(SECTIONS) meta.yaml template.tex webheader.md Makefile README.md LICENSE .gitignore
+SOURCES := $(SECTIONS) meta.yaml template.tex webheader.md web-letterhead.md Makefile README.md LICENSE .gitignore
 
 # Commit message for `make push`; override with: make push MSG="your message"
 # Exported so the recipe reads it from the environment ($$MSG), which keeps
@@ -78,11 +79,14 @@ cv-raw.pdf: $(SECTIONS) meta.yaml template.tex Makefile
 # .DELETE_ON_ERROR removes the truncated index.md) instead of being masked
 # by the exit status of `cat -s`. Inline because Apple's make 3.81 ignores
 # .SHELLFLAGS, the usual way to set this.
-$(BUNDLE)/index.md: $(SECTIONS) webheader.md Makefile | $(BUNDLE)
+$(BUNDLE)/index.md: $(WEB_SECTIONS) webheader.md web-letterhead.md Makefile | $(BUNDLE)
 	set -o pipefail; \
 	{ cat webheader.md; \
-	  pandoc --strip-comments $(SECTIONS) -t gfm \
-	    | awk '/^<div class="hang">$$/ {h=1; next} h && /^<\/div>$$/ {h=0; next} {print}'; \
+	  cat web-letterhead.md; \
+	  printf '\n'; \
+	  pandoc --strip-comments $(WEB_SECTIONS) -t gfm \
+	    | awk '/^<div class="hang">$$/ {h=1; next} h && /^<\/div>$$/ {h=0; next} {print}' \
+	    | sed 's|https://jaredeberle.org|[jaredeberle.org](/)|g'; \
 	} | cat -s > $@
 
 $(BUNDLE):
