@@ -82,6 +82,7 @@ cv-raw.pdf: $(SECTIONS) meta.yaml template.tex Makefile
 $(BUNDLE)/index.md: $(WEB_SECTIONS) webheader.md web-letterhead.md Makefile | $(BUNDLE)
 	set -o pipefail; \
 	{ cat webheader.md; \
+	  printf '\n'; \
 	  cat web-letterhead.md; \
 	  printf '\n'; \
 	  pandoc --strip-comments $(WEB_SECTIONS) -t gfm \
