@@ -1,3 +1,3 @@
 ## References
 
-- Available upon request
+Available upon request

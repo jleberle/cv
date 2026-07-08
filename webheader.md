@@ -1,8 +1,8 @@
 ---
-title: "Jared L. Eberle — Curriculum Vitae"
+title: "Curriculum Vitae"
 description: "Summer 2026"
-summary: "Curriculum vitae of Jared L. Eberle, historian of 20th century Native American activism."
-date: 2026-06-07
+summary: "Curriculum vitae of Jared L. Eberle, historian of 20th century Native American activism. Updated Summer 2026."
+date: 2026-07-08
 hideMeta: true
 ---
 

@@ -72,9 +72,15 @@ cv-raw.pdf: $(SECTIONS) meta.yaml template.tex Makefile
 
 # --- Web page: pandoc gfm body with the front matter / PDF link prepended ---
 # --strip-comments keeps parked <!-- --> entries out of the generated index.md.
-# The awk drops only the .hang wrapper divs (opening line + its matching close),
-# so a stray </div> from any future content is left intact. cat -s then collapses
-# the blank lines left where the wrappers were.
+# +definition_lists keeps the Term/: Definition entries (work, education) as
+# real <dl><dt><dd> in the output instead of gfm's default of flattening them
+# to a paragraph with a hard line break — Hugo's Goldmark renders pandoc's
+# definition-list markdown as <dl> natively, no Hugo-side config needed, which
+# is what lets the website give dates their own column instead of running
+# them into the institution line. The awk drops only the .hang wrapper divs
+# (opening line + its matching close), so a stray </div> from any future
+# content is left intact. cat -s then collapses the blank lines left where
+# the wrappers were.
 # set -o pipefail: a pandoc failure mid-pipe must fail the recipe (so
 # .DELETE_ON_ERROR removes the truncated index.md) instead of being masked
 # by the exit status of `cat -s`. Inline because Apple's make 3.81 ignores
@@ -85,7 +91,7 @@ $(BUNDLE)/index.md: $(WEB_SECTIONS) webheader.md web-letterhead.md Makefile | $(
 	  printf '\n'; \
 	  cat web-letterhead.md; \
 	  printf '\n'; \
-	  pandoc --strip-comments $(WEB_SECTIONS) -t gfm \
+	  pandoc --strip-comments $(WEB_SECTIONS) -t gfm+definition_lists \
 	    | awk '/^<div class="hang">$$/ {h=1; next} h && /^<\/div>$$/ {h=0; next} {print}' \
 	    | sed 's|https://jaredeberle.org|[jaredeberle.org](/)|g'; \
 	} | cat -s > $@
