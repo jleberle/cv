@@ -5,6 +5,8 @@
 # Requires: pandoc, tectonic (LaTeX engine), ghostscript (gs), qpdf, git.
 # (Replaces the previous markdown-pp pipeline; pandoc concatenates the files.)
 
+# Override either on the command line if the website repo lives somewhere
+# else, e.g.: make publish BUNDLE=/path/to/site/content/cv
 WEBSITE := $(HOME)/git/website
 BUNDLE  := $(WEBSITE)/content/cv
 
@@ -14,7 +16,7 @@ SECTIONS := $(sort $(wildcard [0-9][0-9]-*.md))
 WEB_SECTIONS := $(filter-out 01-header.md,$(SECTIONS))
 
 # Source files committed by `make push` (explicit list avoids picking up scratch files).
-SOURCES := $(SECTIONS) meta.yaml template.tex webheader.md web-letterhead.md Makefile README.md LICENSE .gitignore
+SOURCES := $(SECTIONS) meta.yaml template.tex webheader.md web-letterhead.md Makefile README.md LICENSE .gitignore .woodpecker.yml
 
 # Commit message for `make push`; override with: make push MSG="your message"
 # Exported so the recipe reads it from the environment ($$MSG), which keeps
@@ -35,7 +37,7 @@ SEASON := $(shell case $$(date +%m) in (12|01|02) echo Winter;; (03|04|05) echo 
 # `publish` relies on prerequisite order (update-date -> build -> website -> source),
 # so never run recipes in parallel.
 .NOTPARALLEL:
-.PHONY: build pdf web preview publish push pushweb clean update-date check
+.PHONY: build pdf web preview publish push pushweb clean update-date check verify-reproducible
 
 # --- Preflight: verify required tools are installed ---
 check:
@@ -54,6 +56,17 @@ web: $(BUNDLE)/index.md
 # Build both outputs into ./preview instead of the website repo (safe to inspect).
 preview:
 	$(MAKE) build BUNDLE=$(CURDIR)/preview
+
+# Build cv.pdf twice into separate dirs and diff the bytes, to check the
+# reproducible-build claim (see README) rather than just assert it.
+verify-reproducible:
+	@rm -rf .repro-a .repro-b
+	@$(MAKE) --no-print-directory pdf BUNDLE=$(CURDIR)/.repro-a
+	@$(MAKE) --no-print-directory pdf BUNDLE=$(CURDIR)/.repro-b
+	@cmp .repro-a/cv.pdf .repro-b/cv.pdf \
+	  && echo "OK: cv.pdf is byte-identical across independent builds." \
+	  || { echo "FAIL: cv.pdf differs between builds"; exit 1; }
+	@rm -rf .repro-a .repro-b
 
 # --- PDF: pandoc (LaTeX) -> ghostscript (subset + compress) -> qpdf (linearize) ---
 $(BUNDLE)/cv.pdf: cv-opt.pdf | $(BUNDLE)
@@ -130,4 +143,4 @@ pushweb:
 # Remove intermediates and any leftover temp files from the working directory.
 clean:
 	rm -f cv-raw.pdf cv-opt.pdf meta.yaml.tmp webheader.md.tmp
-	rm -rf preview
+	rm -rf preview .repro-a .repro-b

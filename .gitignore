@@ -1,5 +1,7 @@
 cv-raw.pdf
 cv-opt.pdf
 preview/
+.repro-a/
+.repro-b/
 *.tmp
 .DS_Store

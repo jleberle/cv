@@ -9,7 +9,9 @@ builds **two** outputs from a single source:
 
 Both outputs are written into the [website repo](https://codeberg.org/jle/website)
 as a Hugo [page bundle](https://gohugo.io/content-management/page-bundles/) at
-`content/cv/` (`index.md` + `cv.pdf`).
+`content/cv/` (`index.md` + `cv.pdf`). The website repo is assumed to be
+checked out at `~/git/website`; override that with e.g.
+`make publish BUNDLE=/path/to/site/content/cv` if it lives elsewhere.
 
 ## Dependencies
 
@@ -22,9 +24,17 @@ as a Hugo [page bundle](https://gohugo.io/content-management/page-bundles/) at
 | `make` (GNU Make) | Task runner |
 
 On macOS: `brew install pandoc tectonic ghostscript qpdf`. The first PDF build
-needs network access (Tectonic downloads its TeX package bundle, then caches it).
+needs network access (Tectonic downloads its TeX package bundle into
+`~/.cache/Tectonic`, then reuses that cache). Once that first build has
+succeeded on a machine, every later build — including `make -B`, `make
+preview`, and `make verify-reproducible` — is fully offline.
 
 `make push` and `make pushweb` sign commits with GPG (`git commit -S`). A configured, available GPG key is required; without one those targets will fail.
+
+Known-good versions (last verified 2026-07-29): pandoc 3.10.1, Tectonic
+0.17.0, Ghostscript 10.07.1, qpdf 12.3.2. Not enforced by the build — recorded
+here so a future rebuild that looks subtly different has a baseline to diff
+against. Update this line whenever you rebuild on a new machine.
 
 > **Note:** this replaces the previous `markdown-pp` + `pandoc` pipeline.
 > `markdown-pp` is no longer used — pandoc concatenates the section files directly.
@@ -59,12 +69,13 @@ excluded from the section glob.
 ## Building
 
 ```sh
-make check    # verify all dependencies are installed before building
-make          # build both the PDF and the web page (default; no commit/push)
-make pdf      # build only the PDF
-make web      # build only the web page
-make preview  # build both into ./preview instead of the website repo
-make publish  # stamp the date, build, then commit & push BOTH repos
+make check               # verify all dependencies are installed before building
+make                     # build both the PDF and the web page (default; no commit/push)
+make pdf                 # build only the PDF
+make web                 # build only the web page
+make preview             # build both into ./preview instead of the website repo
+make verify-reproducible # build cv.pdf twice and confirm the bytes match
+make publish             # stamp the date, build, then commit & push BOTH repos
 ```
 
 > A plain `make` writes its outputs straight into the website repo's
@@ -112,4 +123,17 @@ Force a full rebuild with `make -B`.
   the last source commit) fixes the LaTeX timestamps, Ghostscript omits its
   info dates, and qpdf writes a content-derived `/ID` — so rebuilding without
   content changes (even `make -B`) reproduces `cv.pdf` exactly, and a no-op
-  `make publish` creates no website commit.
+  `make publish` creates no website commit. Run `make verify-reproducible` to
+  check this directly (builds `cv.pdf` twice into throwaway dirs and diffs the
+  bytes) rather than take the claim on faith; CI runs this on every push.
+- **CI:** `.woodpecker.yml` installs the four build tools and runs `make check
+  && make preview && make verify-reproducible` on every push. It doesn't
+  publish anything — its only job is to fail loudly if an upstream tool
+  changes in a way this pipeline doesn't expect, instead of that surfacing
+  the next time the CV actually needs to go out.
+- **License:** the MIT license covers this repo's *build tooling*
+  (`Makefile`, `template.tex`, and the pandoc/Hugo plumbing) — reuse it
+  freely as a pandoc+Tectonic CV template. The CV's own text (`02-work.md`
+  through `11-references.md`: employment history, publications, awards, etc.)
+  is Jared Eberle's biographical content, not software, and isn't meant to be
+  covered by the same grant.

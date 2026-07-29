@@ -1,0 +1,14 @@
+# Codeberg CI (Woodpecker): catches build breakage from upstream tool changes
+# early, rather than the next time the CV needs to go out. Not a deploy step —
+# `make push`/`make pushweb` still require a human with a GPG key.
+steps:
+  build:
+    image: debian:bookworm-slim
+    commands:
+      - apt-get update
+      - apt-get install -y --no-install-recommends make pandoc ghostscript qpdf curl ca-certificates
+      - curl --proto '=https' --tlsv1.2 -fsSL https://drop-sh.fullyjustified.net | sh
+      - install -m 755 tectonic /usr/local/bin/tectonic
+      - make check
+      - make preview
+      - make verify-reproducible
