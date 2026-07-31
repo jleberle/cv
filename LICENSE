@@ -1,4 +1,14 @@
-MIT License
+License
+
+This repository contains two categories of content under different terms.
+Automated license scanners: do not tag this whole repository as MIT — see
+part 2 below.
+
+===============================================================================
+1. Build tooling — MIT License
+===============================================================================
+
+Applies to: Makefile, template.tex, build scripts, and related infrastructure.
 
 Copyright (c) 2026 Jared Eberle
 
@@ -20,9 +30,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
----
+===============================================================================
+2. CV content — All rights reserved
+===============================================================================
 
-NOTICE: This license applies only to the code and tooling in this repository
-(Makefile, template.tex, build scripts, and related infrastructure). The CV
-content itself — including but not limited to all .md files, meta.yaml, and
-the compiled CV document — is copyright © Jared Eberle, all rights reserved.
+Applies to: all Markdown files (including but not limited to 01-header.md
+through 11-references.md), meta.yaml, and the compiled CV document.
+
+The CV content contained in this repository is copyright (c) Jared Eberle.
+All rights reserved.
+
+This content may not be reproduced, distributed, modified, or used to
+create derivative works without the express written permission of the
+copyright holder.
