@@ -1,12 +1,46 @@
 # Codeberg CI (Woodpecker): catches build breakage from upstream tool changes
 # early, rather than the next time the CV needs to go out. Not a deploy step —
 # `make push`/`make pushweb` still require a human with a GPG key.
+#
+# The run is heavy for a CV repo (apt + a tectonic download, then three PDF
+# builds: one for `preview`, two more for `verify-reproducible`), so it's
+# scoped to the events that can actually tell us something. `cron` is the one
+# that serves the stated purpose — upstream pandoc/tectonic drift breaks the
+# build on a timeline of its own, with no commit here to trigger it.
+#
+# The include list is the Makefile's real prerequisite set for cv.pdf and
+# index.md — the numbered sections, meta.yaml, template.tex, the two web
+# headers, and the Makefile itself. README/LICENSE/.gitignore are in the
+# Makefile's SOURCES (so `make push` commits them) but nothing is built from
+# them, so editing them shouldn't cost three PDF builds. Keep this in sync if
+# a new build input is added.
+when:
+  - event: [push, pull_request]
+    path:
+      include:
+        - "[0-9][0-9]-*.md"
+        - meta.yaml
+        - template.tex
+        - webheader.md
+        - web-letterhead.md
+        - Makefile
+        - .woodpecker.yml
+  # Separate rule with no path filter: neither event carries a changed-file
+  # list to match against, and both are cases where we want the build to run
+  # regardless — cron is checking for upstream drift, not for local edits.
+  - event: [manual, cron]
+
 steps:
   build:
     image: debian:bookworm-slim
     commands:
       - apt-get update
-      - apt-get install -y --no-install-recommends make pandoc ghostscript qpdf curl ca-certificates
+      # git: `make check` requires it, and the Makefile pins SOURCE_DATE_EPOCH
+      # from `git log -1`. Without it that falls back to `date +%s`, which is
+      # evaluated once per make process — so the two independent builds in
+      # `verify-reproducible` would draw different timestamps whenever they
+      # straddle a second boundary, failing the byte-compare at random.
+      - apt-get install -y --no-install-recommends make pandoc ghostscript qpdf curl ca-certificates git
       - curl --proto '=https' --tlsv1.2 -fsSL https://drop-sh.fullyjustified.net | sh
       - install -m 755 tectonic /usr/local/bin/tectonic
       - make check
