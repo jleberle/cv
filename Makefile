@@ -37,7 +37,7 @@ SEASON := $(shell case $$(date +%m) in (12|01|02) echo Winter;; (03|04|05) echo 
 # `publish` relies on prerequisite order (update-date -> build -> website -> source),
 # so never run recipes in parallel.
 .NOTPARALLEL:
-.PHONY: build pdf web preview publish push pushweb clean update-date check verify-reproducible
+.PHONY: build pdf web preview publish push pushweb clean update-date check verify-reproducible publications
 
 # --- Preflight: verify required tools are installed ---
 check:
@@ -47,6 +47,13 @@ check:
 	@command -v git      >/dev/null 2>&1 || { echo "ERROR: git not found"; exit 1; }
 	@command -v tectonic >/dev/null 2>&1 || { echo "ERROR: tectonic not found (brew install tectonic)"; exit 1; }
 	@echo "All dependencies found."
+
+# Regenerate 04-publications.md from the Zotero library (items tagged
+# CV: Book / CV: Book Chapter / CV: Article / CV: Book Review). Overwrites
+# the file, so review the diff before publishing. Not part of `build` since
+# it depends on ~/Documents/Library, not just files in this repo.
+publications:
+	python3 scripts/gen-publications.py
 
 # Default: build both outputs (no commit/push). Use `make publish` to ship.
 build: pdf web
